@@ -1,7 +1,7 @@
 import cv2
 
 # Load the video file
-cap = cv2.VideoCapture('./video_sources/example_5.mp4')
+cap = cv2.VideoCapture('./video_sources/example_3.mp4')
 
 # Create a background subtractor object
 fgbg = cv2.createBackgroundSubtractorMOG2()
