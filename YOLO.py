@@ -84,7 +84,7 @@ def draw_object_count(image_to_process, objects_count):
 def start_video_object_detection():
     while True:
         try:
-            video_camera_capture = cv2.VideoCapture('./video_sources/example_5.mp4')
+            video_camera_capture = cv2.VideoCapture('./video_sources/example_2.mp4')
             while video_camera_capture.isOpened():
                 ret, frame = video_camera_capture.read()
                 if not ret:
