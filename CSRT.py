@@ -6,6 +6,7 @@ cap = cv2.VideoCapture('./video_sources/example_5.mp4')
 # Инициализируем трекер CSRT
 tracker = cv2.TrackerCSRT_create()
 
+
 # Читаем первый кадр из видеофайла
 ret, frame = cap.read()
 
