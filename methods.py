@@ -26,78 +26,87 @@
 #     print(f"Частота кадров: {frame_rate} FPS")
 #     print(f"Длительность видео: {duration} секунд")
 
+# import cv2
+#
+# # Функция для отслеживания объекта на видео
+# def track_object(video_path):
+#     cap = cv2.VideoCapture(video_path)
+#     tracker = cv2.TrackerMedianFlow_create()
+#
+#     # Выбор объекта для трекинга
+#     ret, frame = cap.read()
+#     if not ret:
+#         print("Не удалось прочитать видео.")
+#         return
+#     bbox = cv2.selectROI('Select Object', frame)
+#     tracker.init(frame, bbox)
+#
+#     while True:
+#         ret, frame = cap.read()
+#         if not ret:
+#             break
+#
+#         success, bbox = tracker.update(frame)
+#
+#         if success:
+#             # Отрисовка прямоугольника вокруг объекта
+#             x, y, w, h = [int(i) for i in bbox]
+#             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#
+#         cv2.imshow('Object Tracking', frame)
+#
+#         if cv2.waitKey(1) & 0xFF == ord('q'):
+#             break
+#
+#     cap.release()
+#     cv2.destroyAllWindows()
+#
+# # Путь к видеофайлу, в котором нужно отслеживать объект
+# video_path = './video_sources/example_1.mp4'
+# track_object(video_path)
+
+
 import cv2
 import numpy as np
 
-# Функция для инициализации трекера KLT
-def init_klt_tracker(image, bbox):
-    x, y, w, h = bbox
-    roi = image[y:y+h, x:x+w]
-    gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+# Открыть видеофайл
+cap = cv2.VideoCapture('./video_sources/example_5.mp4')
 
-    # Определение угловых точек (features) в ROI
-    corners = cv2.goodFeaturesToTrack(gray_roi, maxCorners=100, qualityLevel=0.01, minDistance=10)
+# Загрузить предварительно обученную модель глубокого обучения Faster R-CNN
+net = cv2.dnn.readNetFromTensorflow('/.models/frozen_inference_graph.pb', '/.models/graph.pbtxt')
 
-    # Преобразование координат угловых точек в глобальные координаты
-    corners = corners + np.array([x, y])
-
-    # Инициализация трекера KLT
-    p0 = corners.reshape(-1, 1, 2).astype(np.float32)
-    return p0, gray_roi
-
-# Функция для обновления KLT трекера
-def update_klt_tracker(image, p0, prev_gray):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Определение новых положений угловых точек
-    p1, st, err = cv2.calcOpticalFlowPyrLK(prev_gray, gray, p0, None)
-
-    # Выбор хороших точек
-    p0 = p0[st == 1]
-    p1 = p1[st == 1]
-
-    return p0, p1, gray
-
-# Функция для визуализации трека объекта
-def draw_tracks(frame, p0, p1):
-    for i, (new, old) in enumerate(zip(p1, p0)):
-        a, b = new.ravel()
-        c, d = old.ravel()
-        frame = cv2.line(frame, (a, b), (c, d), (0, 0, 255), 2)
-        frame = cv2.circle(frame, (a, b), 5, (0, 0, 255), -1)
-    return frame
-
-# Основная функция для трекинга объекта на видео
-def track_object_klt(video_path):
-    cap = cv2.VideoCapture(video_path)
-
-    # Чтение первого кадра
+while True:
+    # Считать кадр из видеофайла
     ret, frame = cap.read()
-    if not ret:
-        print("Не удалось прочитать видео.")
-        return
 
-    # Выбор объекта для трекинга
-    bbox = cv2.selectROI('Select Object', frame)
-    p0, prev_gray = init_klt_tracker(frame, bbox)
+    if ret:
+        # Обнаружить объекты на кадре с помощью Faster R-CNN
+        blob = cv2.dnn.blobFromImage(frame, size=(300, 300), swapRB=True, crop=False)
+        net.setInput(blob)
+        detections = net.forward()
 
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+        # Отфильтровать объекты, соответствующие автомобилям
+        for i in range(detections.shape[2]):
+            class_id = int(detections[0, 0, i, 1])
+            if class_id == 3: # 3 соответствует классу "автомобиль"
+                confidence = detections[0, 0, i, 2]
+                if confidence > 0.5:
+                    box = detections[0, 0, i, 3:7] * np.array([frame.shape[1], frame.shape[0], frame.shape[1], frame.shape[0]])
+                    (startX, startY, endX, endY) = box.astype("int")
 
-        p0, p1, prev_gray = update_klt_tracker(frame, p0, prev_gray)
+                    # Отобразить прямоугольник вокруг автомобиля
+                    cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 3)
 
-        frame = draw_tracks(frame, p0, p1)
+        # Вывести кадр с выделенными движущимися автомобилями
+        cv2.imshow('frame', frame)
 
-        cv2.imshow('Object Tracking', frame)
+    else:
+        break
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+    # Выход из цикла при нажатии клавиши 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
-    cap.release()
-    cv2.destroyAllWindows()
-
-# Путь к видеофайлу, в котором нужно отслеживать объект
-video_path = 'video_sources/example_1.mp4'
-track_object_klt(video_path)
+# Освободить ресурсы
+cap.release()
+cv2.destroyAllWindows()
