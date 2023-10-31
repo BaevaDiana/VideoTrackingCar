@@ -1,4 +1,5 @@
 import cv2
+import time
 
 # загрузка исходного видеофайла
 cap = cv2.VideoCapture('./video_sources/example_5.mp4')
@@ -23,6 +24,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('./video_results/output_csrt_5.avi', fourcc, 20.0, (width, height))
 
+start_time = time.time()
 # чтение видеопотока и отслеживание объектов
 while True:
     # чтение кадра из видеофайла
@@ -47,7 +49,14 @@ while True:
     # выход из цикла при нажатии клавиши 'q'
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
+end_time = time.time()
+# вывод сравнительных характеристик
+if cap.get(cv2.CAP_PROP_FRAME_COUNT) != 0:
+    print(f"Время работы метода MOG2: {end_time - start_time:.5f} секунд")
+    print(f"Скорость обработки: {cap.get(cv2.CAP_PROP_FPS):.0f} кадров/секунду")
+    print(f"Частота потери изображения: {1 / ((end_time - start_time) / cap.get(cv2.CAP_PROP_POS_FRAMES)):.0f} кадров/секунду")
+else:
+    print("Видеофайл не содержит кадров.")
 # освобождение ресурсов и закрытие всех окон
 cap.release()
 out.release()
