@@ -2,7 +2,7 @@ import cv2
 import time
 
 # загрузка исходного видеофайла
-cap = cv2.VideoCapture('./video_sources/example_5.mp4')
+cap = cv2.VideoCapture('./video_sources/example_4.mp4')
 
 # инициализация трекера CSRT
 tracker = cv2.TrackerCSRT_create()
@@ -22,7 +22,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 # создание объекта cv2.VideoWriter
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('./video_results/output_csrt_5.avi', fourcc, 20.0, (width, height))
+out = cv2.VideoWriter('./video_results/output_csrt_4.avi', fourcc, 20.0, (width, height))
 
 start_time = time.time()
 # чтение видеопотока и отслеживание объектов
@@ -52,7 +52,7 @@ while True:
 end_time = time.time()
 # вывод сравнительных характеристик
 if cap.get(cv2.CAP_PROP_FRAME_COUNT) != 0:
-    print(f"Время работы метода MOG2: {end_time - start_time:.5f} секунд")
+    print(f"Время работы метода CSRT: {end_time - start_time:.5f} секунд")
     print(f"Скорость обработки: {cap.get(cv2.CAP_PROP_FPS):.0f} кадров/секунду")
     print(f"Частота потери изображения: {1 / ((end_time - start_time) / cap.get(cv2.CAP_PROP_POS_FRAMES)):.0f} кадров/секунду")
 else:

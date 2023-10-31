@@ -108,12 +108,12 @@ def draw_object_count(image_to_process, objects_count):
 # захват и анализ видео в режиме реального времени
 def start_video_object_detection():
     # загрузка исходного видеофайла
-    cap = cv2.VideoCapture('./video_sources/example_5.mp4')
+    cap = cv2.VideoCapture('./video_sources/example_4.mp4')
     # чтение первого кадра из видеофайла
     ret, frame = cap.read()
     # создание объекта VideoWriter
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./video_results/output_yolo_1.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+    out = cv2.VideoWriter('./video_results/output_yolo_4.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
     start_time = time.time()
     while True:
         ret, frame = cap.read()
@@ -139,7 +139,7 @@ def start_video_object_detection():
     end_time = time.time()
     # вывод сравнительных характеристик
     if cap.get(cv2.CAP_PROP_FRAME_COUNT) != 0:
-        print(f"Время работы метода MOG2: {end_time - start_time:.5f} секунд")
+        print(f"Время работы метода: {end_time - start_time:.5f} секунд")
         print(f"Скорость обработки: {cap.get(cv2.CAP_PROP_FPS):.0f} кадров/секунду")
         print(
             f"Частота потери изображения: {1 / ((end_time - start_time) / cap.get(cv2.CAP_PROP_POS_FRAMES)):.0f} кадров/секунду")
