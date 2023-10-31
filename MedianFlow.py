@@ -1,7 +1,7 @@
 import cv2
 
 # Загрузка видеофайла
-video = cv2.VideoCapture('./video_sources/example_4.mp4')
+video = cv2.VideoCapture('./video_sources/example_1.mp4')
 
 # Инициализация MedianFlow Tracker
 tracker = cv2.legacy.TrackerMedianFlow_create()
