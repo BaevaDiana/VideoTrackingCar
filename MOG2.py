@@ -1,40 +1,53 @@
 import cv2
 
-# Load the video file
-cap = cv2.VideoCapture('./video_sources/example_3.mp4')
+# загрузка исходного видеофайла
+cap = cv2.VideoCapture('./video_sources/example_5.mp4')
 
-# Create a background subtractor object
+# создание объекта вычитания фона
 fgbg = cv2.createBackgroundSubtractorMOG2()
 
+# получение ширины и высоты кадра
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+# создание объекта cv2.VideoWriter
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('./video_results/output_mog2_5.avi', fourcc, 20.0, (width, height))
+
+# чтение видеопотока и отслеживание объектов
 while True:
-    # Read a frame from the video file
+    # чтение кадра из видеофайла
     ret, frame = cap.read()
 
     if not ret:
         break
 
-    # Apply background subtraction to the frame
+    # применение вычитания фона к кадру
     fgmask = fgbg.apply(frame)
 
-    # Find contours in the foreground mask
+    # поиск контуров на маске переднего плана
     contours, hierarchy = cv2.findContours(fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Loop over the contours
+    # перебор контуров
     for contour in contours:
-        # Get the bounding box of each contour
+        # получение ограничивающего прямоугольника каждого контура
         x, y, w, h = cv2.boundingRect(contour)
 
-        # Draw a rectangle around the contour if it's big enough and has a certain aspect ratio
+        # отрисовка прямоугольника вокруг контура, если он достаточно большой и имеет определенное соотношение сторон
         if w > 50 and h > 50 and w/h > 1.3:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    # Display the resulting frame
-    cv2.imshow('frame', frame)
+    # запись текущего кадра в файл
+    out.write(frame)
 
-    # Exit if the user presses 'q'
+    # отображение текущего кадра
+    cv2.imshow('Tracking', frame)
+
+    # выход из цикла при нажатии пользователем клавиши 'q'
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release the video file and close all windows
+# освобождение ресурсов и закрытие всех окон
 cap.release()
+out.release()
 cv2.destroyAllWindows()
