@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 
 # обнаружение объектов с помощью YOLO
 def apply_yolo_object_detection(image_to_process):
@@ -112,7 +113,8 @@ def start_video_object_detection():
     ret, frame = cap.read()
     # создание объекта VideoWriter
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./video_results/output_yolo_5.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+    out = cv2.VideoWriter('./video_results/output_yolo_1.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+    start_time = time.time()
     while True:
         ret, frame = cap.read()
 
@@ -133,6 +135,16 @@ def start_video_object_detection():
         # выход из цикла по нажатию клавиши 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+    end_time = time.time()
+    # вывод сравнительных характеристик
+    if cap.get(cv2.CAP_PROP_FRAME_COUNT) != 0:
+        print(f"Время работы метода MOG2: {end_time - start_time:.5f} секунд")
+        print(f"Скорость обработки: {cap.get(cv2.CAP_PROP_FPS):.0f} кадров/секунду")
+        print(
+            f"Частота потери изображения: {1 / ((end_time - start_time) / cap.get(cv2.CAP_PROP_POS_FRAMES)):.0f} кадров/секунду")
+    else:
+        print("Видеофайл не содержит кадров.")
 
     # освобождение ресурсов и закрытие окон
     cap.release()
