@@ -108,12 +108,12 @@ def draw_object_count(image_to_process, objects_count):
 # захват и анализ видео в режиме реального времени
 def start_video_object_detection():
     # загрузка исходного видеофайла
-    cap = cv2.VideoCapture('./video_sources/example_4.mp4')
+    cap = cv2.VideoCapture('./video_sources/example_7.mp4')
     # чтение первого кадра из видеофайла
     ret, frame = cap.read()
     # создание объекта VideoWriter
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./video_results/output_yolo_4.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+    out = cv2.VideoWriter('./video_results/output_yolo_7.avi', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
     start_time = time.time()
     while True:
         ret, frame = cap.read()
